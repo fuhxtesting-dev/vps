@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.site_title }} - Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: {{ config.colors[config.theme].primary }};
+            --secondary: {{ config.colors[config.theme].secondary }};
+            --accent: {{ config.colors[config.theme].accent }};
+            --bg: {{ config.colors[config.theme].background }};
+            --card-bg: {{ config.colors[config.theme].card_bg }};
+            --text: {{ config.colors[config.theme].text }};
+            --danger: {{ config.colors[config.theme].danger }};
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #1a0533 30%, #0d1b4b 60%, #0a0a1a 100%);
+            overflow: hidden;
+            position: relative;
+        }
+        .blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.35; animation: blobFloat 8s ease-in-out infinite; pointer-events: none; }
+        .blob-1 { width: 400px; height: 400px; background: radial-gradient(circle, #f472b6, #db2777); top: -100px; left: -100px; animation-delay: 0s; }
+        .blob-2 { width: 350px; height: 350px; background: radial-gradient(circle, #818cf8, #4f46e5); bottom: -100px; right: -100px; animation-delay: 3s; }
+        .blob-3 { width: 250px; height: 250px; background: radial-gradient(circle, #38bdf8, #0284c7); top: 50%; left: 60%; animation-delay: 1.5s; }
+        @keyframes blobFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+        .particle { position: absolute; width: 3px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 50%; animation: particleDrift linear infinite; }
+        @keyframes particleDrift {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+        .login-wrapper { position: relative; z-index: 10; width: 100%; max-width: 420px; padding: 20px; animation: cardEntrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(40px) scale(0.92); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .login-card {
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 28px;
+            padding: 44px 40px;
+            box-shadow: 0 0 0 1px rgba(244,114,182,0.15), 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .logo-wrap { text-align: center; margin-bottom: 36px; }
+        .logo-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 72px; height: 72px; border-radius: 20px;
+            background: linear-gradient(135deg, rgba(244,114,182,0.3), rgba(129,140,248,0.3));
+            border: 1px solid rgba(255,255,255,0.2); margin-bottom: 18px; position: relative;
+            box-shadow: 0 0 30px rgba(244,114,182,0.3), 0 0 60px rgba(129,140,248,0.15);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 30px rgba(244,114,182,0.3); } 50% { box-shadow: 0 0 50px rgba(244,114,182,0.5), 0 0 80px rgba(129,140,248,0.3); } }
+        .logo-icon i { font-size: 28px; background: linear-gradient(135deg, #f472b6, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .site-title { font-size: 24px; font-weight: 700; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
+        .site-subtitle { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 2px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+        .status-bar {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; padding: 10px 14px; margin-bottom: 28px;
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.45);
+        }
+        .status-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; animation: statusBlink 2s ease-in-out infinite; flex-shrink: 0; }
+        @keyframes statusBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .error-message {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #fca5a5;
+        }
+        .input-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+        .input-group { position: relative; margin-bottom: 20px; }
+        .login-input {
+            width: 100%; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 14px;
+            padding: 14px 50px 14px 18px; font-size: 15px; color: #fff;
+            font-family: 'Outfit', sans-serif; transition: all 0.3s ease; outline: none;
+        }
+        .login-input::placeholder { color: rgba(255,255,255,0.22); }
+        .login-input:focus { background: rgba(244,114,182,0.08); border-color: rgba(244,114,182,0.5); box-shadow: 0 0 0 4px rgba(244,114,182,0.1); }
+        .toggle-password { position: absolute; right: 16px; bottom: 15px; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 16px; transition: color 0.2s; }
+        .toggle-password:hover { color: #f472b6; }
+        .login-button {
+            width: 100%; padding: 15px; border: none; border-radius: 14px;
+            font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+            cursor: pointer; background: linear-gradient(135deg, #f472b6, #818cf8);
+            color: #fff; font-family: 'Outfit', sans-serif;
+            transition: all 0.3s ease; box-shadow: 0 8px 24px rgba(244,114,182,0.35);
+        }
+        .login-button:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(244,114,182,0.5); }
+        .login-button:active { transform: translateY(0); }
+        .login-footer { text-align: center; margin-top: 28px; font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; }
+        .theme-badge { position: fixed; top: 16px; right: 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 5px 10px; font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; z-index: 100; }
+    </style>
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="particles" id="particles"></div>
+    <div class="theme-badge">{{ config.theme|upper }}</div>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="logo-wrap">
+                <div class="logo-icon">
+                    <i class="fas fa-server"></i>
+                </div>
+                <h1 class="site-title">{{ config.site_header }}</h1>
+                <p class="site-subtitle">Secure Access Portal</p>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-dot"></div>
+                <span>SYSTEM ONLINE &nbsp;·&nbsp; AUTH REQUIRED</span>
+            </div>
+
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/login" id="loginForm">
+                <label class="input-label">Access Password</label>
+                <div class="input-group">
+                    <input type="password"
+                           name="password"
+                           id="password"
+                           class="login-input"
+                           placeholder="Enter your password"
+                           required
+                           autofocus>
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword()" id="toggleIcon"></i>
+                </div>
+                <button type="submit" class="login-button">
+                    <i class="fas fa-arrow-right-to-bracket" style="margin-right:8px;"></i>Authenticate
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>⚠ UNAUTHORIZED ACCESS PROHIBITED</p>
+                <p style="margin-top:6px; color: rgba(244,114,182,0.4);">FUHX SECURE SYSTEMS</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 25; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                p.style.animationDelay = (Math.random() * 15) + 's';
+                const size = (Math.random() * 3 + 1) + 'px';
+                p.style.width = size;
+                p.style.height = size;
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>
