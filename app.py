@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 """
 FX HOSTING - Ultimate VPS Management Panel
-Version: 3.0.0
-Features: Server Management, File Manager, Terminal, Process Monitor,
-          Task Scheduler, Backup Manager, Package Manager, System Info
-Optimized for: Termux & Linux VPS
+Version: 3.0.1 - Railway Optimized
 """
 
 import os
@@ -31,7 +28,26 @@ from functools import wraps
 from pathlib import Path
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
+
+# Railway-optimized secret key
+import random
+import string
+SECRET_KEY_FILE = 'secret_key.txt'
+if os.path.exists(SECRET_KEY_FILE):
+    with open(SECRET_KEY_FILE, 'r') as f:
+        app.secret_key = f.read().strip()
+else:
+    app.secret_key = secrets.token_hex(32)
+    with open(SECRET_KEY_FILE, 'w') as f:
+        f.write(app.secret_key)
+
+# Railway session fix - use filesystem based session
+app.config.update(
+    SESSION_COOKIE_SECURE=False,  # Railway uses HTTP internally
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=datetime.timedelta(days=1)
+)
 
 # =============================================================================
 # CONFIGURATION
