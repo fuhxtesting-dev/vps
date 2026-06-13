@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.site_title }} - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: {{ themes[config.theme].primary }};
+            --secondary: {{ themes[config.theme].secondary }};
+            --accent: {{ themes[config.theme].accent }};
+            --bg: {{ themes[config.theme].bg }};
+            --card-bg: {{ themes[config.theme].card_bg }};
+            --text: {{ themes[config.theme].text }};
+            --danger: {{ themes[config.theme].danger }};
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Consolas', 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .login-container {
+            background: linear-gradient(145deg, var(--card-bg), rgba(0,0,0,0.6));
+            border: 1px solid {{ themes[config.theme].primary }}40;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 40px {{ themes[config.theme].primary }}15, inset 0 0 60px rgba(0,0,0,0.3);
+            animation: containerPulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes containerPulse {
+            0%, 100% { box-shadow: 0 0 40px {{ themes[config.theme].primary }}10, inset 0 0 60px rgba(0,0,0,0.3); }
+            50% { box-shadow: 0 0 60px {{ themes[config.theme].primary }}25, inset 0 0 60px rgba(0,0,0,0.3); }
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--bg);
+            box-shadow: 0 0 30px {{ themes[config.theme].primary }}40;
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .login-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+        
+        .login-subtitle {
+            font-size: 11px;
+            opacity: 0.5;
+            letter-spacing: 2px;
+        }
+        
+        .terminal-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+        
+        .terminal-prompt {
+            color: var(--primary);
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: var(--primary);
+            animation: blink 1s infinite;
+            margin-left: 5px;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .password-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .login-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid {{ themes[config.theme].primary }}30;
+            color: var(--text);
+            padding: 14px 45px 14px 16px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        .login-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px {{ themes[config.theme].primary }}30;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.6;
+            transition: all 0.2s;
+            background: none;
+            border: none;
+        }
+        
+        .password-toggle:hover {
+            opacity: 1;
+        }
+        
+        .login-button {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Consolas', 'Courier New', monospace;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-button:hover {
+            background: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 0 25px {{ themes[config.theme].primary }}50;
+        }
+        
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .login-button:hover::before {
+            left: 100%;
+        }
+        
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 12px;
+            border: 1px solid {{ themes[config.theme].danger }}40;
+            padding: 10px;
+            border-radius: 6px;
+            background: {{ themes[config.theme].danger }}10;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .footer-text {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 10px;
+            opacity: 0.4;
+            letter-spacing: 1px;
+        }
+        
+        .version-badge {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 10px;
+            opacity: 0.4;
+            letter-spacing: 1px;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid {{ themes[config.theme].primary }}15;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 9px;
+            opacity: 0.5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .typing-effect::after {
+            content: '|';
+            animation: blink 1s infinite;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    
+    <div class="login-container">
+        <div class="version-badge">v3.0.0</div>
+        
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-terminal"></i>
+            </div>
+            <h1 class="login-title">{{ config.site_header }}</h1>
+            <p class="login-subtitle">FX HOSTING SECURE TERMINAL v3.0</p>
+        </div>
+        
+        <div class="terminal-line">
+            <span class="terminal-prompt">root@fx-hosting:~$</span>
+            <span id="typingText" class="typing-effect"></span>
+        </div>
+        
+        {% if error %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="/login" id="loginForm">
+            <div class="password-container">
+                <input type="password" 
+                       name="password" 
+                       id="password"
+                       class="login-input" 
+                       placeholder="Enter access password..."
+                       required
+                       autofocus>
+                <button type="button" class="password-toggle" onclick="togglePassword()">
+                    <i class="fas fa-eye" id="toggleIcon"></i>
+                </button>
+            </div>
+            
+            <button type="submit" class="login-button">
+                <i class="fas fa-shield-alt mr-2"></i>
+                AUTHENTICATE
+            </button>
+        </form>
+        
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-value"><i class="fas fa-lock"></i></div>
+                <div class="stat-label">Secure</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value"><i class="fas fa-shield-alt"></i></div>
+                <div class="stat-label">Protected</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value"><i class="fas fa-server"></i></div>
+                <div class="stat-label">VPS Ready</div>
+            </div>
+        </div>
+        
+        <div class="footer-text">
+            <p>FX HOSTING - ULTIMATE VPS MANAGEMENT PANEL</p>
+            <p class="mt-1">Optimized for Termux & Linux VPS</p>
+        </div>
+    </div>
+
+    <script>
+        // Matrix Background
+        (function() {
+            const canvas = document.getElementById('matrixCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            const fontSize = 14;
+            const columns = Math.floor(canvas.width / fontSize);
+            const drops = Array(columns).fill(1);
+            
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '{{ themes[config.theme].primary }}30';
+                ctx.font = fontSize + 'px monospace';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            setInterval(draw, 50);
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        })();
+        
+        // Typing Effect
+        const text = 'AUTH_REQUIRED';
+        const typingEl = document.getElementById('typingText');
+        let charIndex = 0;
+        
+        function typeEffect() {
+            if (charIndex < text.length) {
+                typingEl.textContent += text.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeEffect, 100);
+            }
+        }
+        setTimeout(typeEffect, 500);
+        
+        // Password Toggle
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+        
+        // Focus password on load
+        document.getElementById('password').focus();
+    </script>
+</body>
+</html>
