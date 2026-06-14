@@ -2573,7 +2573,7 @@
     setInterval(updateStats, 3000);
     
     // ===== UPTIME COUNTER =====
-    let appStartTime = {{ (time.time() - START_TIME) | int }};
+    let appStartTime = 0;
     function updateUptime() {
         appStartTime++;
         const days = Math.floor(appStartTime / 86400);
